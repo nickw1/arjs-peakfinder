@@ -1,0 +1,17 @@
+{
+    "name": "arjs-peakfinder",
+    "version": "0.0.1",
+    "description": "AR.js Peakfinder app",
+    "scripts": {
+        "build": "browserify index.js > bundle.js"
+    },
+    "dependencies": {
+        "aframe-osm-3d": "^0.4.0"
+    },
+    "author": "Nick Whitelegg",
+    "license": "LGPL-2.1",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/nickw1/arjs-peakfinder.git"
+    }
+}

@@ -4,13 +4,18 @@ AFRAME.registerComponent('peakfinder', {
     schema: {
         scale: {
             type: 'number',
-            default: 20
+            default: 15
+        },
+        statusElement: {
+            type: 'string',
+            default: 'status'
         }
     },
 
     init: function() {
         this.textScale = this.data.scale * 100;
         this.camera = document.querySelector('a-camera');
+        this.statusDomEl = document.getElementById(this.data.statusElement);
 
         window.addEventListener('gps-camera-update-position', e => {
             this.el.setAttribute('terrarium-dem', {
@@ -25,11 +30,19 @@ AFRAME.registerComponent('peakfinder', {
             this.camera.setAttribute('position', position);
         });
 
+        this.el.addEventListener('terrarium-start-update', e=> {
+            this.statusDomEl.innerHTML = 'Loading elevation data...';
+        });
+
+        this.el.addEventListener('terrarium-dem-loaded', e=> {
+            this.statusDomEl.innerHTML = 'Loading OSM data...';
+        });
+
         this.el.addEventListener('osm-data-loaded', e => {
+            this.statusDomEl.innerHTML = '';
             e.detail.pois
                 .filter ( f => f.properties.natural == 'peak' )
                 .forEach ( peak => {
-                    console.log(peak);
                     const entity = document.createElement('a-entity');
                     entity.setAttribute('look-at', '[gps-projected-camera]');
                     const text = document.createElement('a-text');
@@ -46,12 +59,12 @@ AFRAME.registerComponent('peakfinder', {
                         z: 0
                     });
                     entity.setAttribute('gps-projected-entity-place', {
-                        latitude: peak.geometry[2],
-                        longitude: peak.geometry[0]
+                        latitude: peak.geometry.coordinates[1],
+                        longitude: peak.geometry.coordinates[0]
                     });
                     entity.setAttribute('position', {
                         x: 0,
-                        y: peak.geometry[1],
+                        y: peak.geometry.coordinates[2],
                         z: 0
                     });
                     entity.appendChild(text);
@@ -67,7 +80,6 @@ AFRAME.registerComponent('peakfinder', {
                     entity.appendChild(cone);
 
                     this.el.appendChild(entity);
-                    console.log('appending');
                 });
         });
     }
